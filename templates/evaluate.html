@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h2>Evaluate Rules</h2>
+<form id="evaluationForm" action="{{ url_for('main.api_evaluate_rules') }}" method="POST">
+    <div class="form-group">
+        <input type="number" class="form-control" name="age" placeholder="Age" required>
+    </div>
+    <div class="form-group">
+        <input type="text" class="form-control" name="department" placeholder="Department" required>
+    </div>
+    <div class="form-group">
+        <input type="number" class="form-control" name="salary" placeholder="Salary" required>
+    </div>
+    <div class="form-group">
+        <input type="number" class="form-control" name="experience" placeholder="Experience (in years)" required>
+    </div>
+    <button type="submit">Evaluate</button>
+</form>
+<h3>Results</h3>
+<div id="results"></div>
+
+<script>
+    document.querySelector("form").addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+        const formData = new FormData(this);
+        
+        fetch("{{ url_for('main.api_evaluate_rules') }}", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            const resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = ""; // Clear previous results
+            data.forEach(item => {
+                const resultItem = document.createElement("div");
+                resultItem.innerHTML = `<strong>${item.rule_string}:</strong> ${item.result ? "True" : "False"}<br>`;
+                
+                // Display reasons for the evaluation
+                const reasonsList = document.createElement("ul");
+                item.reasons.forEach(reason => {
+                    const reasonItem = document.createElement("li");
+                    reasonItem.textContent = reason;
+                    reasonsList.appendChild(reasonItem);
+                });
+                resultItem.appendChild(reasonsList);
+                
+                resultItem.style.color = item.result ? "green" : "red"; // Color based on result
+                resultsDiv.appendChild(resultItem);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+</script>
+{% endblock %}

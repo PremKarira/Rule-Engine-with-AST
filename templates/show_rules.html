@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Show Rules</h2>
+
+<!-- Form for combining or deleting selected rules -->
+<form action="{{ url_for('main.combine_selected_rules') }}" method="POST">
+    <!-- <button type="submit" name="action" value="delete">Delete Selected Rules</button> -->
+    <button type="submit" name="action" value="combine">Combine Selected Rules</button>
+    <button type="button" onclick="document.getElementById('deleteAllForm').submit()">Delete All Rules</button>
+    <ul>
+        {% for rule in rules %}
+            <li>
+                <input type="checkbox" name="selected_rules" value="{{ rule['_id'] }}">
+                <button type="button" class="toggle-ast">Show AST</button>
+                <h3>{{ rule.rule_string }}</h3>
+                <pre class="ast" style="display: none;">{{ rule.ast | tojson(indent=2) }}</pre>
+                <form action="{{ url_for('main.delete_rule', rule_id=rule['_id']) }}" method="POST" style="display:inline;">
+                    <button type="submit">Delete</button>
+                </form>
+            </li>
+        {% else %}
+            <li>No rules found.</li>
+        {% endfor %}
+    </ul>
+</form>
+<br>
+<form id="deleteAllForm" action="{{ url_for('main.delete_all_rules') }}" method="POST" style="display:none;"></form>
+
+<script>
+    const buttons = document.querySelectorAll('.toggle-ast');
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            const astPre = this.parentElement.querySelector('.ast');
+            if (astPre.style.display === 'none') {
+                astPre.style.display = 'block';
+                this.textContent = 'Hide AST';
+            } else {
+                astPre.style.display = 'none';
+                this.textContent = 'Show AST';
+            }
+        });
+    });
+</script>
+{% endblock %}

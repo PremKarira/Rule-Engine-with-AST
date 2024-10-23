@@ -1,0 +1,14 @@
+# Ignore environment variables
+.env
+
+# Ignore Python compiled files
+__pycache__/
+*.pyc
+
+# Ignore IDE specific files
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+appp.py
+templates copy/
